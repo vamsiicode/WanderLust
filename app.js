@@ -30,7 +30,7 @@ main()
         console.log("conneced to DATABASE");
     })
     .catch((err)=>{
-        console.log("Error in connecting DB", err);
+        console.log(err);
     });
 
 
@@ -92,7 +92,7 @@ app.use((req,res,next)=>{
 });
 
 
-app.use("/Wonder",listingRouter);
+app.use("/listings",listingRouter);
 app.use("/listings/:id/reviews",reviewRouter);
 app.use("/",userRouter);
 
