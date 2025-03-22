@@ -92,7 +92,7 @@ app.use((req,res,next)=>{
 });
 
 
-app.use("/listings",listingRouter);
+app.use("/Wonder",listingRouter);
 app.use("/listings/:id/reviews",reviewRouter);
 app.use("/",userRouter);
 
