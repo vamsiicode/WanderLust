@@ -24,18 +24,18 @@ const userRouter=require("./routes/user.js");
 // const MONGO_URL="mongodb://127.0.0.1:27017/wanderlust";
 
 const dbUrl=process.env.ATLASDB_URL;
+
 main()
     .then(()=>{
         console.log("conneced to DATABASE");
     })
     .catch((err)=>{
-        console.log(err);
+        console.log("Error in connecting DB", err);
     });
 
 
-
 async function main(){
-    await mongoose.connect(dbUrl);
+   await mongoose.connect(dbUrl);
 }
 
 app.set("view engine","ejs");
@@ -44,9 +44,6 @@ app.use(express.urlencoded({extended:true}));
 app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
-
-
-
 
 // app.get("/",(req,res)=>{
 //     res.send("Hi,I am root");
