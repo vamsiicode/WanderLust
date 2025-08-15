@@ -5,9 +5,14 @@ body{
     min-height: 100vh;
 }
 
-.whole{
-    background-image:  url('https://res.cloudinary.com/dbuaprvlg/image/upload/v1750522426/space_kmqbqp.png');
+/* Make the whole body background solid black */
+.whole {
+    background-color: #000 !important;
+    background-image: none !important;
+    color: #ffffff; /* optional: sets default text color to white */
+    min-height: 100vh;
 }
+
 
 .container{
     flex: 1;
@@ -143,4 +148,14 @@ body{
   .review-card {
     margin-right: 1rem;
   }
+}
+@media (min-width: 992px) {
+  #comment {
+    max-width: 600px; /* Adjust to desired width */
+  }
+}
+/*Map*/
+#map{
+    height: 400px;
+    width: 60vh;
 }

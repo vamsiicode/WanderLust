@@ -19,13 +19,17 @@ main()
 async function main(){
     await mongoose.connect(MONGO_URL);
 }
-
+ 
 const initDB=async()=>{
-    // await Listing.deleteMany({});
-    initdata.data=initdata.data.map((obj)=>({...obj,owner:'68530caca105ce0ec6e3911d'}));
+    await Listing.deleteMany({});
+    initdata.data=initdata.data.map((obj)=>({...obj,owner:'688cd2239005deb25caaa77e',
+        geometry: obj.geometry || {
+            type: "Point",
+            coordinates: [0, 0], // Default/fake coordinates; replace with real ones if available
+        },
+    }));
     await Listing.insertMany(initdata.data);
     console.log("Data was intialized");
 }
 
 initDB();
- 

@@ -39,12 +39,27 @@
         </div>
 
         <div class="navbar-nav ms-auto">
-          <form class="d-flex" role="search">
-            <input class="form-control me-2 search-inp" type="search" placeholder="Search Destinations" aria-label="Search">
+          <form class="d-flex" role="search" onsubmit="return false;">
+            <input id="searchInput" class="form-control me-2 search-inp" type="search" placeholder="Search Destinations" aria-label="Search">
             <button class="btn search-btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
           </form>
         </div>
+        
         <div class="navbar-nav ms-auto">
+          
+          <% if (currUser && currUser.notifications) {
+              const unreadCount = currUser.notifications.filter(n => !n.isRead).length;
+          %>
+              <a class="nav-link position-relative" href="/notifications">
+                  <i class="fa-solid fa-bell"></i>
+                  <% if (unreadCount > 0) { %>
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                          <%= unreadCount %>
+                      </span>
+                  <% } %>
+              </a>
+          <% } %>
+
           <a class="nav-link" href="/wander/new">Airbnb your home</a>
           <% if(!currUser) {%>
             <a class="nav-link active" aria-current="page" href="/signup"><b>Sign Up</b></a>

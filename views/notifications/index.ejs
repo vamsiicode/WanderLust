@@ -1,0 +1,55 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-5">
+  <h2 class="mb-4 text-center" style="font-weight: 600;">🔔 Your Notifications</h2>
+
+  <div class="d-flex justify-content-end mb-3">
+    <form action="/notifications/mark-read" method="POST">
+      <button class="btn btn-outline-success btn-sm">
+        <i class="fa-solid fa-eye-slash me-1"></i> Mark all as read
+      </button>
+    </form>
+  </div>
+
+  <% if (notifications.length === 0) { %>
+    <div class="alert alert-info text-center shadow-sm">
+      <i class="fa-solid fa-envelope-open-text"></i> You have no notifications!
+    </div>
+  <% } %>
+ 
+  <div class="list-group">
+    <% notifications.forEach(note => { %>
+      <div class="list-group-item list-group-item-action shadow-sm mb-2 p-3 rounded d-flex justify-content-between align-items-start" 
+           style="background-color: <%= note.isRead ? '#f8f9fa' : '#fff3cd' %>;">
+        <div class="me-3" style="flex: 1;">
+          <div class="fw-semibold">
+            <%= note.message %>
+          </div>
+          <small class="text-muted"><%= new Date(note.createdAt).toLocaleString() %></small>
+        </div>
+        <div class="me-3"> 
+          <% if (note.type === "booking" &&  currUser 
+              && note.listing 
+              && note.listing.owner 
+              && String(note.listing.owner._id) === String(currUser._id) 
+              && !note.responded) { %>
+                <form class="respond-form d-inline" action="/notifications/<%= note._id %>/respond" method="POST">
+                  <input type="hidden" name="guestId" value="<%= note.fromId %>">
+                  <input type="hidden" name="status" value="Accepted">
+                  <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                </form>
+                <form class="respond-form d-inline" action="/notifications/<%= note._id %>/respond" method="POST">
+                  <input type="hidden" name="guestId" value="<%= note.fromId %>">
+                  <input type="hidden" name="status" value="Rejected">
+                  <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                </form>
+          <% } else if (note.responded) { %>
+            <span class="badge bg-<%= note.responseStatus === 'Accepted' ? 'success' : 'danger' %>">
+              <%= note.responseStatus %>
+            </span>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>

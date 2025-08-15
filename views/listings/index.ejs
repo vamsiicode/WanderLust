@@ -101,7 +101,8 @@
     </div>
 </div>
 <br><br>
-<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1" >
+
+<div id="listingsContainer"  class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1" >
     <%for(let listing of allListings){%>
         <a href="/wander/<%=listing._id%>" class="listing-link">
             <div class="card col listing-card">
@@ -125,6 +126,37 @@
     <%}%>
 </div>
 
+<!-- Floating Chatbot Button -->
+<style>
+    .chatbot-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #ff385c;
+        color: white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        cursor: pointer;
+        z-index: 999;
+        transition: transform 0.2s ease;
+    }
+    .chatbot-btn:hover {
+        transform: scale(1.1);
+        background-color: #e03150;
+    }
+    .chatbot-btn i {
+        font-size: 28px;
+    }
+</style>
+
+<div class="chatbot-btn" onclick="window.location.href='wander/chat'">
+    <i class="fa-solid fa-comments"></i>
+</div>
 
 <script>
     let taxSwitch=document.getElementById("flexSwitchCheckDefault");
@@ -139,4 +171,57 @@
             }      
         }
     });
+</script>
+
+
+<script>
+document.getElementById("searchInput").addEventListener("input", async function () {
+    let query = this.value.trim();
+    let container = document.getElementById("listingsContainer");
+    container.innerHTML = "";
+
+    if (!query) return;
+
+    try {
+        const res = await fetch(`/wander/search-listings?q=${encodeURIComponent(query)}`);
+        
+        if (!res.ok) {
+            throw new Error(`HTTP Error: ${res.status}`);
+        }
+
+        const listings = await res.json();
+
+        if (!Array.isArray(listings) || listings.length === 0) {
+            container.innerHTML = `<div class="col-12 text-center text-muted mt-4">
+                <h5 style="color:white">No stays found for "<span style="color:#ff385c">${query}</span>"</h5>
+            </div>`;
+            return;
+        }
+
+        listings.forEach(listing => {
+            container.innerHTML += `
+                <a href="/wander/${listing._id}" class="listing-link">
+                    <div class="card col listing-card">
+                        <img src="${listing.image.url}" class="card-img-top" alt="listing_image" style="height:20rem">
+                        <div class="card-img-overlay"></div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <b>${listing.title}</b>
+                                <br>
+                                &#8377; ${listing.price.toLocaleString("en-IN")} /Stay
+                                <i class="tax-info"> &nbsp; &nbsp; +18% GST</i>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            `;
+        });
+    } catch (err) {
+        console.error("Search error:", err);
+        container.innerHTML = `<div class="col-12 text-center text-danger mt-4">
+            <h5>Error loading listings</h5>
+        </div>`;
+    }
+});
+
 </script>

@@ -1,0 +1,158 @@
+<%= layout("/layouts/boilerplate") %>
+
+
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        background: black;      /* full white page background */
+        overflow-x: hidden;     /* prevent sideways scroll */
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+        background: black;
+    }
+
+    .chat-header {
+        /* background: red; */
+        color: white;
+        padding: 15px;
+        font-size: 30px;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        text-align: center;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background: black;
+    }
+
+    .message {
+        margin-bottom: 15px;
+        max-width: 45%;
+        padding: 12px 15px;
+        border-radius: 12px;
+        font-size: 15px;
+        line-height: 1.4;
+        word-wrap: break-word;
+        animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .message.user {
+        background:#e4e6eb;
+        color: black;
+        margin-left: auto;
+        border-bottom-right-radius: 0;
+    }
+
+    .message.bot {
+        background: #e4e6eb;
+        color: black;
+        margin-right: auto;
+        border-bottom-left-radius: 0;
+    }
+
+    .chat-input {
+        display: flex;
+        border-top: 1px solid #ddd;
+        padding: 10px;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        max-width: 800px;     /* You can adjust this */
+        margin: 0 auto;       /* Centers it horizontally */
+        width: 100%;
+    }
+
+    .chat-input input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        outline: none;
+        font-size: 14px;
+        margin-right: 10px;
+        transition: 0.2s;
+    }
+
+    .chat-input input:focus {
+        border-color: #ff385c;
+        box-shadow: 0 0 5px rgba(255, 56, 92, 0.3);
+    }
+
+    .chat-input button {
+        background: #ff385c;
+        color: white;
+        padding: 0 20px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s ease-in-out;
+    }
+
+    .chat-input button:hover {
+        background: #e03150;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="chat-container">
+    <div class="chat-header">WanderBot</div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input">
+        <input type="text" id="msgInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter'){sendMessage()}">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    const messagesContainer = document.getElementById("chatMessages");
+
+    function appendMessage(text, sender) {
+        const msg = document.createElement("div");
+        msg.classList.add("message", sender);
+        msg.textContent = text;
+        messagesContainer.appendChild(msg);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById("msgInput");
+        const text = input.value.trim();
+        if (text) {
+            appendMessage(text, "user");
+            socket.emit("chat message", text); // match server event name
+            input.value = "";
+        }
+    }
+
+    // Receive bot messages
+    socket.on("chat message", (msg) => {
+        appendMessage(msg, "bot");
+    });
+</script>

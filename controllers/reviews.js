@@ -1,5 +1,6 @@
 const Listing = require("../models/listing");
 const Review = require("../models/review");
+const User=require("../models/user");
 
 module.exports.createReview=async(req,res)=>{
     let listing=await Listing.findById(req.params.id);
@@ -7,6 +8,13 @@ module.exports.createReview=async(req,res)=>{
     newReview.author=req.user._id;
     listing.reviews.push(newReview);
     // console.log(newReview);
+    const owner = await User.findById(listing.owner._id);
+    owner.notifications.push({
+        type: "review",
+        message: `${req.user.username} reviewed your hotel "${listing.title}"`,
+        listing: listing._id
+    });
+    await owner.save();
     await newReview.save();
     await listing.save();
     req.flash("success","New Review Created!");

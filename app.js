@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
 
 const store=MongoStore.create({
     mongoUrl:dbUrl,
-    crypto:{
+    crypto:{ 
         secret:process.env.SECRET,
     },
     touchAfter:24*3600,
@@ -63,7 +63,7 @@ const sessionOptions={
     store,
     secret:process.env.SECRET,
     resave:false,
-    saveUnintialized:true,
+    saveUninitialized:true,
     cookie:{
         expires:Date.now()+1000*60*60*24*7,
         maxAge:1000*60*60*24*7,
@@ -106,7 +106,47 @@ app.use((err,req,res,next)=>{
     res.status(statusCode).send(message);
 });
 
+const http = require("http");
+const socketIo = require("socket.io");
+const axios = require("axios");
+const server = http.createServer(app);//server can do both HTTp and websocket
+const io = socketIo(server);
 
-app.listen(8080,()=>{
+io.on("connection", (socket) => {
+  console.log("User connected");
+  socket.on("chat message", async (msg) => {
+    try {
+      console.log("User:", msg);
+
+      const response = await axios.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          model: "llama-3.3-70b-versatile", // or choose another available model
+          messages: [
+            { role: "system", content: "You are a helpful assistant." },
+            { role: "user", content: msg },
+          ],
+          temperature: 0.7,
+          max_tokens: 512,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const botReply = response.data.choices[0].message.content;
+      socket.emit("chat message", botReply);
+    } catch (error) {
+      console.error("Groq API error:", error.response?.status, error.message);
+      socket.emit("chat message", "Oops, something went wrong with the AI.");
+    }
+  });
+});
+
+
+server.listen(8080,()=>{
     console.log("server is listening to port 8080");
 });
+ 
